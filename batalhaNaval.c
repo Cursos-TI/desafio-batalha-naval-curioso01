@@ -1,71 +1,77 @@
 #include <stdio.h>
 
-int main() {
-    // Letras das colunas de A até J
-    char colunas[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+// Função para verificar se um navio pode ser colocado sem sair do tabuleiro e sem sobreposição
+int podeColocar(int tabuleiro[10][10], int linha, int coluna, int tamanho, char direcao) {
+    for (int i = 0; i < tamanho; i++) {
+        int l = linha, c = coluna;
 
-    // Tamanho fixo do tabuleiro e dos navios
+        if (direcao == 'H') c += i;
+        else if (direcao == 'V') l += i;
+        else if (direcao == 'D') { l += i; c += i; }
+        else if (direcao == 'E') { l += i; c -= i; }
+
+        // Verifica se está dentro dos limites
+        if (l < 0 || l >= 10 || c < 0 || c >= 10) return 0;
+
+        // Verifica se a posição já está ocupada
+        if (tabuleiro[l][c] == 3) return 0;
+    }
+
+    return 1;
+}
+
+// Função para posicionar o navio na matriz
+void colocarNavio(int tabuleiro[10][10], int linha, int coluna, int tamanho, char direcao) {
+    for (int i = 0; i < tamanho; i++) {
+        if (direcao == 'H') {
+            tabuleiro[linha][coluna + i] = 3;  // Horizontal
+        } else if (direcao == 'V') {
+            tabuleiro[linha + i][coluna] = 3;  // Vertical
+        } else if (direcao == 'D') {
+            tabuleiro[linha + i][coluna + i] = 3;  // Diagonal descendente
+        } else if (direcao == 'E') {
+            tabuleiro[linha + i][coluna - i] = 3;  // Diagonal ascendente (espelhada)
+        }
+    }
+}
+
+int main() {
     int tabuleiro[10][10];
+    char colunas[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     int tamanhoNavio = 3;
 
-    // Inicializa o tabuleiro com 0 (representando água)
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    // Inicializa o tabuleiro com água (0)
+    for (int i = 0; i < 10; i++)
+        for (int j = 0; j < 10; j++)
             tabuleiro[i][j] = 0;
-        }
-    }
 
-    // Coordenadas iniciais para o navio horizontal
-    int linhaHorizontal = 2;
-    int colunaHorizontal = 4;
+    // Posicionamento dos navios
+    // Navio 1 - Horizontal em (2, 1)
+    if (podeColocar(tabuleiro, 2, 1, tamanhoNavio, 'H'))
+        colocarNavio(tabuleiro, 2, 1, tamanhoNavio, 'H');
 
-    // Coordenadas iniciais para o navio vertical
-    int linhaVertical = 6;
-    int colunaVertical = 1;
+    // Navio 2 - Vertical em (5, 5)
+    if (podeColocar(tabuleiro, 5, 5, tamanhoNavio, 'V'))
+        colocarNavio(tabuleiro, 5, 5, tamanhoNavio, 'V');
 
-    // Posicionamento do navio horizontal (se não ultrapassar os limites e sem sobreposição)
-    if (colunaHorizontal + tamanhoNavio <= 10) {
-        int sobreposicao = 0;
-        for (int i = 0; i < tamanhoNavio; i++) {
-            if (tabuleiro[linhaHorizontal][colunaHorizontal + i] == 3) {
-                sobreposicao = 1;
-                break;
-            }
-        }
-        if (!sobreposicao) {
-            for (int i = 0; i < tamanhoNavio; i++) {
-                tabuleiro[linhaHorizontal][colunaHorizontal + i] = 3;
-            }
-        }
-    }
+    // Navio 3 - Diagonal descendente em (7, 7)
+    if (podeColocar(tabuleiro, 7, 7, tamanhoNavio, 'D'))
+        colocarNavio(tabuleiro, 7, 7, tamanhoNavio, 'D');
 
-    // Posicionamento do navio vertical (se não ultrapassar os limites e sem sobreposição)
-    if (linhaVertical + tamanhoNavio <= 10) {
-        int sobreposicao = 0;
-        for (int i = 0; i < tamanhoNavio; i++) {
-            if (tabuleiro[linhaVertical + i][colunaVertical] == 3) {
-                sobreposicao = 1;
-                break;
-            }
-        }
-        if (!sobreposicao) {
-            for (int i = 0; i < tamanhoNavio; i++) {
-                tabuleiro[linhaVertical + i][colunaVertical] = 3;
-            }
-        }
-    }
+    // Navio 4 - Diagonal ascendente em (0, 9)
+    if (podeColocar(tabuleiro, 0, 9, tamanhoNavio, 'E'))
+        colocarNavio(tabuleiro, 0, 9, tamanhoNavio, 'E');
 
-    // Exibição do cabeçalho (título + letras das colunas)
+    // Exibição do tabuleiro com cabeçalhos
     printf("TABULEIRO BATALHA NAVAL\n");
-    printf("  "); // Espaço para alinhar os números das linhas
-    for (int j = 0; j < 10; j++) {
-        printf(" %c", colunas[j]);
+    printf("   ");  // Espaço para alinhar os números
+    for (int i = 0; i < 10; i++) {
+        printf(" %c", colunas[i]);
     }
     printf("\n");
 
-    // Exibição do tabuleiro com os números das linhas (1 a 10)
     for (int i = 0; i < 10; i++) {
-        printf("%2d", i + 1); // Números das linhas com alinhamento
+        printf("%2d ", i + 1);  // Número da linha
         for (int j = 0; j < 10; j++) {
             printf(" %d", tabuleiro[i][j]);
         }
